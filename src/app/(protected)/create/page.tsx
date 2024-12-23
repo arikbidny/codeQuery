@@ -14,20 +14,13 @@ import {
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createProjectSchema } from "@/features/projects/schemas";
-
-// type FormInput = {
-//   repoUrl: string;
-//   projectName: string;
-//   githubToken?: string;
-// };
+import { api } from "@/trpc/react";
+import { toast } from "sonner";
+import useRefetch from "@/hooks/use-refetch";
 
 const CreateProjectPage = () => {
-  //   const { register, handleSubmit, reset } = useForm<FormInput>();
-
-  //   function onSubmit(data: FormInput) {
-  //     window.alert(JSON.stringify(data, null, 2));
-  //     return true;
-  //   }
+  const createProject = api.project.createProject.useMutation();
+  const refetch = useRefetch();
 
   const form = useForm<z.infer<typeof createProjectSchema>>({
     resolver: zodResolver(createProjectSchema),
@@ -39,8 +32,23 @@ const CreateProjectPage = () => {
   });
 
   const onSubmit = (values: z.infer<typeof createProjectSchema>) => {
-    // print the values
-    console.log(values);
+    createProject.mutate(
+      {
+        projectName: values.projectName,
+        repoUrl: values.repoUrl,
+        githubToken: values.githubToken,
+      },
+      {
+        onSuccess: () => {
+          toast.success("Project created successfully");
+          refetch();
+          form.reset();
+        },
+        onError: (error) => {
+          toast.error("Failed to create project");
+        },
+      },
+    );
   };
 
   return (
@@ -110,7 +118,11 @@ const CreateProjectPage = () => {
                     </FormItem>
                   )}
                 />
-                <Button type="submit" className="mt-4">
+                <Button
+                  type="submit"
+                  className="mt-4"
+                  disabled={createProject.isPending}
+                >
                   Create Project
                 </Button>
               </div>
