@@ -32,21 +32,21 @@ const items = [
     url: "/dashboard",
     icon: LayoutDashboard,
   },
-  {
-    title: "Q&A",
-    url: "/qa",
-    icon: Bot,
-  },
-  {
-    title: "Meetings",
-    url: "/meetings",
-    icon: Presentation,
-  },
-  {
-    title: "Billing",
-    url: "/billing",
-    icon: CreditCard,
-  },
+  //   {
+  //     title: "Q&A",
+  //     url: "/qa",
+  //     icon: Bot,
+  //   },
+  //   {
+  //     title: "Meetings",
+  //     url: "/meetings",
+  //     icon: Presentation,
+  //   },
+  //   {
+  //     title: "Billing",
+  //     url: "/billing",
+  //     icon: CreditCard,
+  //   },
 ];
 
 export function AppSidebar() {

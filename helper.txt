@@ -2,6 +2,7 @@ https://www.youtube.com/watch?v=OqlI2766LCk
 https://www.youtube.com/watch?v=OqlI2766LCk&list=PLv8XNy31mAPq__ZitIrgMrb4vI2I2hZKs
 46:20
 1:10:00
+1:54:55
 
 
 create t3 app: bunx create-t3-app@latest
