@@ -1,10 +1,30 @@
+import { Document } from "@langchain/core/documents";
 import { AzureOpenAI } from "openai";
+import { AzureOpenAIEmbeddings } from "@langchain/openai";
 
 const client = new AzureOpenAI({
   endpoint: process.env.AZURE_OPENAI_ENDPOINT,
   apiKey: process.env.AZURE_OPENAI_KEY,
   apiVersion: "2024-10-01-preview",
   deployment: "gpt-4o",
+});
+
+// Using ada 03
+// const embeddings = new AzureOpenAIEmbeddings({
+//   azureOpenAIApiKey: process.env.AZURE_OPENAI_KEY, // In Node.js defaults to process.env.AZURE_OPENAI_API_KEY
+//   azureOpenAIApiInstanceName: process.env.AZURE_OPENAI_INSTANCE_NAME, // In Node.js defaults to process.env.AZURE_OPENAI_API_INSTANCE_NAME
+//   azureOpenAIApiEmbeddingsDeploymentName: "text-embedding-3-large", // In Node.js defaults to process.env.AZURE_OPENAI_API_EMBEDDINGS_DEPLOYMENT_NAME
+//   azureOpenAIApiVersion: "2024-02-01", // In Node.js defaults to process.env.AZURE_OPENAI_API_VERSION
+//   maxRetries: 1,
+// });
+
+// Using ada 02
+const embeddings = new AzureOpenAIEmbeddings({
+  azureOpenAIApiKey: process.env.AZURE_OPENAI_KEY, // In Node.js defaults to process.env.AZURE_OPENAI_API_KEY
+  azureOpenAIApiInstanceName: process.env.AZURE_OPENAI_INSTANCE_NAME, // In Node.js defaults to process.env.AZURE_OPENAI_API_INSTANCE_NAME
+  azureOpenAIApiEmbeddingsDeploymentName: "text-embedding-ada-002", // In Node.js defaults to process.env.AZURE_OPENAI_API_EMBEDDINGS_DEPLOYMENT_NAME
+  azureOpenAIApiVersion: "2024-02-01", // In Node.js defaults to process.env.AZURE_OPENAI_API_VERSION
+  maxRetries: 1,
 });
 
 /**
@@ -88,3 +108,51 @@ export const aiSummarizeCommit = async (diff: string) => {
     throw error;
   }
 };
+
+export async function summarizeCode(doc: Document) {
+  console.log("getting summary for", doc.metadata.source);
+  const code = doc.pageContent.slice(0, 10000); // Limit to 10000 characters
+  const systemPrompt = `You are an intelligent senior software engineer who specializes in onboarding junior software engineers onto projects
+    You are onboarding a junior software engineer and explaining to the the purpose of the ${doc.metadata.source} file`;
+  const userPrompt = `Give a summary no more than 100 words of the code: \n\n${code}`;
+
+  try {
+    const response = await client.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        {
+          role: "system",
+          content: systemPrompt,
+        },
+        {
+          role: "user",
+          content: userPrompt,
+        },
+      ],
+    });
+
+    const content = response?.choices?.[0]?.message?.content;
+    if (!content) {
+      throw new Error("The response content is undefined or null.");
+    }
+
+    return content;
+  } catch (error) {
+    console.error("Error summarizing code:", error);
+    throw error;
+  }
+}
+
+// ...existing code...
+export async function generateEmbedding(summary: string) {
+  try {
+    const [result] = await embeddings.embedDocuments([summary]);
+    console.log(result);
+    return result;
+  } catch (error) {
+    console.error("Error generating embedding:", error);
+    return null;
+  }
+}
+// ...existing code...
+generateEmbedding("This is a test summary");
