@@ -17,6 +17,9 @@ import Image from "next/image";
 
 import { useState } from "react";
 import CodeReferences from "./code-references";
+import { api } from "@/trpc/react";
+import { toast } from "sonner";
+import useRefetch from "@/hooks/use-refetch";
 
 const AskQuestionCard = () => {
   const { project } = useProject();
@@ -28,6 +31,7 @@ const AskQuestionCard = () => {
     { fileName: string; sourceCode: string; summary: string }[]
   >([]);
   const [answer, setAnswer] = useState("");
+  const saveAnswer = api.project.saveAnswer.useMutation();
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     setAnswer("");
@@ -63,14 +67,48 @@ const AskQuestionCard = () => {
     // const { output, filesReferences } = await askQuestion(question, project.id);
   };
 
+  const refetch = useRefetch();
+
   return (
     <>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="!max-h-[80vh] sm:max-w-[80vw]">
           <DialogHeader>
-            <DialogTitle>
-              <Image src="/logo.png" alt="codeQuery" width={130} height={130} />
-            </DialogTitle>
+            <div className="flex items-center gap-2">
+              <DialogTitle>
+                <Image
+                  src="/logo.png"
+                  alt="codeQuery"
+                  width={130}
+                  height={130}
+                />
+              </DialogTitle>
+              <Button
+                variant={"outline"}
+                disabled={saveAnswer.isPending}
+                onClick={() => {
+                  saveAnswer.mutate(
+                    {
+                      projectId: project?.id!,
+                      question,
+                      answer,
+                      filesReferences,
+                    },
+                    {
+                      onSuccess: () => {
+                        toast.success("Answer saved successfully");
+                        refetch();
+                      },
+                      onError: () => {
+                        toast.error("Failed to save answer");
+                      },
+                    },
+                  );
+                }}
+              >
+                Save Answer
+              </Button>
+            </div>
           </DialogHeader>
 
           <div
@@ -89,7 +127,6 @@ const AskQuestionCard = () => {
             type="button"
             onClick={() => setOpen(false)}
             disabled={loading}
-            className="mb-2"
           >
             Close
           </Button>

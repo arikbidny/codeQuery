@@ -32,16 +32,16 @@ const items = [
     url: "/dashboard",
     icon: LayoutDashboard,
   },
-  //   {
-  //     title: "Q&A",
-  //     url: "/qa",
-  //     icon: Bot,
-  //   },
-  //   {
-  //     title: "Meetings",
-  //     url: "/meetings",
-  //     icon: Presentation,
-  //   },
+  {
+    title: "History",
+    url: "/qa",
+    icon: Bot,
+  },
+  {
+    title: "Wikis",
+    url: "/wikis",
+    icon: Presentation,
+  },
   //   {
   //     title: "Billing",
   //     url: "/billing",
@@ -61,7 +61,7 @@ export function AppSidebar() {
         <div className="flex items-center gap-2">
           <Image src="/logoIcon.png" alt="logo" width={40} height={40} />
           {open && (
-            <h1 className="text-xl font-bold text-primary/80">CodeQuery</h1>
+            <h1 className="text-xl font-bold text-[#365486]/80">CodeQuery</h1>
           )}
         </div>
       </SidebarHeader>
