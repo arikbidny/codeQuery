@@ -14,7 +14,7 @@ const Dashboard = () => {
     <div>
       <div className="flex flex-wrap items-center justify-between gap-y-4">
         {/* github link */}
-        <div className="bg-primary w-fit rounded-md px-4 py-3">
+        <div className="w-fit rounded-md bg-[#023047] px-4 py-3">
           <div className="flex items-center">
             <Github className="size-5 text-white" />
             <div className="ml-2">

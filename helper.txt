@@ -4,6 +4,7 @@ https://www.youtube.com/watch?v=OqlI2766LCk&list=PLv8XNy31mAPq__ZitIrgMrb4vI2I2h
 1:10:00
 1:54:55
 2:30:00
+2:36:00
 
 
 create t3 app: bunx create-t3-app@latest
@@ -14,3 +15,7 @@ bunx --bun shadcn@latest init
 bunx --bun shadcn@latest add
 
 bun prima studio 
+
+
+colors:
+https://colorhunt.co/palette/dcf2f17fc7d93654860f1035

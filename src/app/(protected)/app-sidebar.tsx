@@ -61,7 +61,7 @@ export function AppSidebar() {
         <div className="flex items-center gap-2">
           <Image src="/logoIcon.png" alt="logo" width={40} height={40} />
           {open && (
-            <h1 className="text-primary/80 text-xl font-bold">CodeQuery</h1>
+            <h1 className="text-xl font-bold text-primary/80">CodeQuery</h1>
           )}
         </div>
       </SidebarHeader>
@@ -76,7 +76,7 @@ export function AppSidebar() {
                     <Link
                       href={item.url}
                       className={cn({
-                        "!bg-primary !text-white": pathname === item.url,
+                        "!bg-[#365486] !text-white": pathname === item.url,
                       })}
                     >
                       <item.icon />
@@ -98,8 +98,10 @@ export function AppSidebar() {
                     <div onClick={() => setProjectId(project.id)}>
                       <div
                         className={cn(
-                          "text-primary flex size-6 items-center justify-center rounded-sm border bg-white text-sm",
-                          { "bg-primary text-white": project.id === projectId },
+                          "flex size-6 items-center justify-center rounded-sm border bg-white text-sm text-primary",
+                          {
+                            "bg-[#7FC7D9] text-white": project.id === projectId,
+                          },
                         )}
                       >
                         {project.name[0]}
