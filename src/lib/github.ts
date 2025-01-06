@@ -56,9 +56,22 @@ export const getCommitHashes = async (
   }));
 };
 
-// console.log(await getCommitHashes(githubUrl));
+console.log(await getCommitHashes(githubUrl));
 // // getCommitHashes(githubUrl);
 
+/**
+ * Polls the commits for a given project, summarizes them, and stores the summaries in the database.
+ *
+ * @param {string} projectId - The ID of the project to poll commits for.
+ * @returns {Promise<any>} A promise that resolves to the created commits.
+ *
+ * This function performs the following steps:
+ * 1. Fetches the GitHub URL for the given project ID.
+ * 2. Retrieves the commit hashes from the GitHub repository.
+ * 3. Filters out the commits that have already been processed.
+ * 4. Summarizes the unprocessed commits.
+ * 5. Stores the summarized commits in the database.
+ */
 export const pollCommits = async (projectId: string) => {
   const { project, githubUrl } = await fetchProjectGithubUrl(projectId);
   const commitHashes = await getCommitHashes(githubUrl);
