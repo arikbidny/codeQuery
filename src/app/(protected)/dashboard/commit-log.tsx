@@ -36,7 +36,7 @@ const CommitLog = () => {
                   <div className="flex justify-between gap-x-4">
                     <Link
                       target="_blank"
-                      href={`${project?.githubUrl}/commit/${commit.commitHash}`}
+                      href={`${project?.repositoryUrl}/commit/${commit.commitHash}`}
                       className="py-0.5 text-xs leading-5 text-gray-500"
                     >
                       <span className="font-medium text-gray-900">

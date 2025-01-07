@@ -17,8 +17,16 @@ import { createProjectSchema } from "@/features/projects/schemas";
 import { api } from "@/trpc/react";
 import { toast } from "sonner";
 import useRefetch from "@/hooks/use-refetch";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const CreateProjectPage = () => {
+  const [repositoryName, setRepositoryName] = React.useState("github");
   const createProject = api.project.createProject.useMutation();
   const refetch = useRefetch();
 
@@ -26,38 +34,53 @@ const CreateProjectPage = () => {
     resolver: zodResolver(createProjectSchema),
     defaultValues: {
       projectName: "",
+      repositoryName: "github",
       repoUrl: "",
       githubToken: "",
     },
   });
 
   const onSubmit = (values: z.infer<typeof createProjectSchema>) => {
-    createProject.mutate(
-      {
-        projectName: values.projectName,
-        repoUrl: values.repoUrl,
-        githubToken: values.githubToken,
-      },
-      {
-        onSuccess: () => {
-          toast.success("Project created successfully");
-          refetch();
-          form.reset();
-        },
-        onError: (error) => {
-          toast.error("Failed to create project");
-        },
-      },
-    );
+    console.log(values);
+    // createProject.mutate(
+    //   {
+    //     projectName: values.projectName,
+    //     repositoryName: values.repositoryName,
+    //     repoUrl: values.repoUrl,
+    //     githubToken: values.githubToken,
+    //   },
+    //   {
+    //     onSuccess: () => {
+    //       toast.success("Project created successfully");
+    //       refetch();
+    //       form.reset();
+    //     },
+    //     onError: (error) => {
+    //       toast.error("Failed to create project");
+    //     },
+    //   },
+    // );
   };
 
   return (
     <div className="flex h-full items-center justify-center gap-12">
-      <img
-        src="/github-octocat-svgrepo-com.svg"
-        alt="GitHub Octocat"
-        className="h-72 w-auto"
-      />
+      {/* select the image depenends on repository name if github so select imaage of github if gitlab select image of gitlab */}
+      {repositoryName === "github" ? (
+        <img
+          src="/github-octocat-svgrepo-com.svg"
+          alt="GitHub Octocat"
+          className="h-72 w-auto"
+        />
+      ) : repositoryName === "gitlab" ? (
+        <img src="/gitlab.png" alt="GitLab" className="h-72 w-auto" />
+      ) : (
+        <img
+          src="/github-octocat-svgrepo-com.svg"
+          alt="GitHub Octocat"
+          className="h-72 w-auto"
+        />
+      )}
+
       {/* <Image
         src="/github-octocat-svgrepo-com.svg"
         alt="GitHub Octocat"
@@ -67,10 +90,8 @@ const CreateProjectPage = () => {
       /> */}
       <div>
         <div>
-          <h1 className="text-2xl font-semibold">
-            Link your GitHub Repository
-          </h1>
-          <p className="text-muted-foreground text-sm">
+          <h1 className="text-2xl font-semibold">Link your Code Repository</h1>
+          <p className="text-sm text-muted-foreground">
             Enter the URL of your Repository to link it to CodeQuery
           </p>
         </div>
@@ -79,6 +100,32 @@ const CreateProjectPage = () => {
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)}>
               <div className="flex flex-col gap-y-2">
+                <FormField
+                  control={form.control}
+                  name="repositoryName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Select
+                          onValueChange={(value) => {
+                            field.onChange(value);
+                            setRepositoryName(value);
+                          }}
+                          defaultValue={field.value}
+                        >
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="repositoryName" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="github">GitHub</SelectItem>
+                            <SelectItem value="gitlab">GitLab</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
                 <FormField
                   control={form.control}
                   name="projectName"
@@ -103,21 +150,41 @@ const CreateProjectPage = () => {
                     </FormItem>
                   )}
                 />
-                <FormField
-                  control={form.control}
-                  name="githubToken"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <Input
-                          {...field}
-                          placeholder="GitHub Token ( Optional )"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                {repositoryName === "github" && (
+                  <FormField
+                    control={form.control}
+                    name="githubToken"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            placeholder="GitHub Token ( Optional )"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
+                {repositoryName === "gitlab" && (
+                  <FormField
+                    control={form.control}
+                    name="githubToken"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            placeholder="GitLab Token ( Optional )"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
+
                 <Button
                   type="submit"
                   className="mt-4"

@@ -7,7 +7,7 @@ export const octokit = new Octokit({
   auth: process.env.GITHUB_TOKEN,
 });
 
-const githubUrl = "https://github.com/docker/genai-stack";
+const repositoryUrl = "https://github.com/docker/genai-stack";
 
 type Response = {
   commitHash: string;
@@ -20,7 +20,7 @@ type Response = {
 /**
  * Fetches the latest commit hashes from a specified GitHub repository.
  *
- * @param githubUrl - The URL of the GitHub repository.
+ * @param repositoryUrl - The URL of the GitHub repository.
  * @returns A promise that resolves to an array of the latest 10 commit details, each containing:
  *  - `commitHash`: The SHA hash of the commit.
  *  - `commitMessage`: The commit message.
@@ -29,9 +29,9 @@ type Response = {
  *  - `commitDate`: The date of the commit.
  */
 export const getCommitHashes = async (
-  githubUrl: string,
+  repositoryUrl: string,
 ): Promise<Response[]> => {
-  const [owner, repo] = githubUrl.split("/").slice(-2);
+  const [owner, repo] = repositoryUrl.split("/").slice(-2);
 
   if (!owner || !repo) {
     throw new Error("Invalid GitHub URL");
@@ -56,7 +56,7 @@ export const getCommitHashes = async (
   }));
 };
 
-console.log(await getCommitHashes(githubUrl));
+console.log(await getCommitHashes(repositoryUrl));
 // // getCommitHashes(githubUrl);
 
 /**
@@ -73,8 +73,8 @@ console.log(await getCommitHashes(githubUrl));
  * 5. Stores the summarized commits in the database.
  */
 export const pollCommits = async (projectId: string) => {
-  const { project, githubUrl } = await fetchProjectGithubUrl(projectId);
-  const commitHashes = await getCommitHashes(githubUrl);
+  const { project, repositoryUrl } = await fetchProjectGithubUrl(projectId);
+  const commitHashes = await getCommitHashes(repositoryUrl);
   const unprocessedCommits = await filterUnprocessedCommits(
     projectId,
     commitHashes,
@@ -82,7 +82,7 @@ export const pollCommits = async (projectId: string) => {
 
   const summaryResponses = await Promise.allSettled(
     unprocessedCommits.map((commit) => {
-      return summarizeCommit(githubUrl, commit.commitHash);
+      return summarizeCommit(repositoryUrl, commit.commitHash);
     }),
   );
 
@@ -120,13 +120,16 @@ export const pollCommits = async (projectId: string) => {
  *
  * @throws {Error} If the request to GitHub fails or if the AI summarization fails.
  */
-async function summarizeCommit(githubUrl: string, commitHash: string) {
+async function summarizeCommit(repositoryUrl: string, commitHash: string) {
   // get the diff, then summarize it with ai
-  const { data } = await axios.get(`${githubUrl}/commit/${commitHash}.diff`, {
-    headers: {
-      Accept: "application/vnd.github.v3.diff",
+  const { data } = await axios.get(
+    `${repositoryUrl}/commit/${commitHash}.diff`,
+    {
+      headers: {
+        Accept: "application/vnd.github.v3.diff",
+      },
     },
-  });
+  );
 
   return (await aiSummarizeCommit(data)) || "";
 }
@@ -135,7 +138,7 @@ async function summarizeCommit(githubUrl: string, commitHash: string) {
  * Fetches the GitHub URL of a project by its ID.
  *
  * @param {string} projectId - The ID of the project to fetch the GitHub URL for.
- * @returns {Promise<{ project: { githubUrl: string }, githubUrl: string }>}
+ * @returns {Promise<{ project: { repositoryUrl: string }, repositoryUrl: string }>}
  *          An object containing the project and its GitHub URL.
  * @throws {Error} If the project is not found or if the project has no GitHub URL.
  */
@@ -145,20 +148,20 @@ async function fetchProjectGithubUrl(projectId: string) {
       id: projectId,
     },
     select: {
-      githubUrl: true,
+      repositoryUrl: true,
     },
   });
 
   if (!project) {
     throw new Error("Project not found");
   }
-  if (!project.githubUrl) {
+  if (!project.repositoryUrl) {
     throw new Error("Project has no GitHub URL");
   }
 
   return {
     project,
-    githubUrl: project.githubUrl,
+    repositoryUrl: project.repositoryUrl,
   };
 }
 
